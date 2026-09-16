@@ -10,16 +10,21 @@ services:
     restart: unless-stopped
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
     networks:
       - vollmed
-  
+
   api:
-    image: vollmed-api-api:latest   
+    image: vollmed-api-api:latest
     restart: unless-stopped
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/vollmed_api?createDatabaseIfNotExist=true
-    depends_on: 
-      - mysqldb
+    depends_on:
+      mysqldb:
+        condition: service_healthy
     ports:
       - "8000:8080"
     networks:
